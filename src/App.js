@@ -28,22 +28,29 @@ const chooseOptimalDistance = (sumMax, numberOfCities, distancesBeetweenCities) 
         bestWay = checkDistance;
         return bestWay;
       }
-    } else if (distancesBeetweenCities.length > 1 && numberOfCities > 1) {
+    } else if (distancesBeetweenCities.length > 1 && numberOfCities >= 1) {
       const getSumsOfAllUniqDists = (distancesBeetweenCities, numberOfCities) => {
-        const res = new Set();
-        if (numberOfCities === 0) res.add([]);
+        const newDistSum = new Set();
+        if (numberOfCities === 0) newDistSum.add([]);
         else {
-          for (const pc of getSumsOfAllUniqDists(distancesBeetweenCities, numberOfCities - 1)) {
-            for (const e of distancesBeetweenCities) {
-              if (pc.indexOf(e) !== -1) break;
-              res.add([e, ...pc].sort((a, b) => a - b));
+          for (const item of getSumsOfAllUniqDists(distancesBeetweenCities, numberOfCities - 1)) {
+            for (const dist of distancesBeetweenCities) {
+              if (item.indexOf(dist) !== -1) break;
+              newDistSum.add([dist, ...item].sort((a, b) => a - b));
             }
           }
         }
-        return res;
+        return newDistSum;
       }
       
-      console.log([...getSumsOfAllUniqDists([1, 2, 3, 4, 5], 3)].map(e => [e, e.reduce((a, b) => a + b, 0)]));
+      let distVariants = [...getSumsOfAllUniqDists(distancesBeetweenCities, numberOfCities)].map(
+        e => [e, e.reduce((a, b) => a + b, 0)]); // get unique arrays with distations 
+      let distSums = [...distVariants.map(variant=> {return variant[1]})]; // get sums of unique distations
+      let filteredDistSums = distSums.filter(distSum => distSum <= sumMax)
+      if(filteredDistSums.length > 0) {
+        bestWay = Math.max(...filteredDistSums);
+        return bestWay;
+      }
     }
     return bestWay > 0 && bestWay !== false ? bestWay : "null" 
   } else {
@@ -56,7 +63,7 @@ function App() {
   return (
     <div className="App">
       <div><b> - App</b></div>
-      <div><span><b> - chooseOptimalDistance function:</b>  </span> {chooseOptimalDistance(99, 2,  [100, 7])}</div>
+      <div><span><b> - chooseOptimalDistance function:</b>  </span> {chooseOptimalDistance(50, 1,  [8, 7, 8, 15, 14, 63])}</div>
       <div><span><b> - palindrom function:</b>  </span> {palindrom("abba")}</div>
     </div>
   );
